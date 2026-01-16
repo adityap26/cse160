@@ -10,6 +10,8 @@ class Point {
   }
 
   render(gl, a_Position, u_FragColor, u_PointSize) {
+    gl.disableVertexAttribArray(a_Position);
+    
     // set position
     gl.vertexAttrib3f(a_Position, this.x, this.y, 0.0);
     
