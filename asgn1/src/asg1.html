@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Drawing App - CSE 160</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      .left-panel {
+        flex: 0 0 auto;
+      }
+      .right-panel {
+        flex: 0 0 auto;
+        margin-top: 20px;
+      }
+      .reference-image {
+        max-width: 400px;
+        height: auto;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .reference-label {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+      }
+      #controls {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+      }
+      .control-group {
+        margin: 10px 0;
+      }
+      label {
+        display: inline-block;
+        width: 120px;
+      }
+      input[type="range"] {
+        width: 200px;
+      }
+      button {
+        margin: 5px;
+        padding: 8px 15px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      button.active {
+        background-color: #4CAF50;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body onload="main()">
+    <h1>Drawing App - CSE 160 Asgn 1</h1>
+    <p><strong>Extra features:</strong> Undo button, preset color buttons, detailed drawing, and smoother drawing</p>
+    
+    <div class="container">
+      <div class="left-panel">
+        <canvas id="webgl" width="400" height="400">
+        Please use a browser that supports "canvas"
+        </canvas>
+
+        <div id="controls">
+      <h3>Controls</h3>
+      
+      <div class="control-group">
+        <label>Shape:</label>
+        <button id="btnPoint" onclick="setShapeType('point')" class="active">Point</button>
+        <button id="btnTriangle" onclick="setShapeType('triangle')">Triangle</button>
+        <button id="btnCircle" onclick="setShapeType('circle')">Circle</button>
+      </div>
+
+      <div class="control-group">
+        <label>Red:</label>
+        <input type="range" id="redSlider" min="0" max="100" value="100" oninput="updateColor()">
+        <span id="redValue">1.0</span>
+      </div>
+
+      <div class="control-group">
+        <label>Green:</label>
+        <input type="range" id="greenSlider" min="0" max="100" value="100" oninput="updateColor()">
+        <span id="greenValue">1.0</span>
+      </div>
+
+      <div class="control-group">
+        <label>Blue:</label>
+        <input type="range" id="blueSlider" min="0" max="100" value="100" oninput="updateColor()">
+        <span id="blueValue">1.0</span>
+      </div>
+
+      <div class="control-group">
+        <label>Size:</label>
+        <input type="range" id="sizeSlider" min="1" max="50" value="10" oninput="updateSize()">
+        <span id="sizeValue">10</span>
+      </div>
+
+      <div class="control-group">
+        <label>Segments:</label>
+        <input type="range" id="segmentsSlider" min="3" max="64" value="20" oninput="updateSegments()">
+        <span id="segmentsValue">20</span>
+      </div>
+
+      <div class="control-group">
+        <label>Quick Colors:</label>
+        <button onclick="setPresetColor([1.0, 0.0, 0.0, 1.0])" style="background-color: red; color: white;">Red</button>
+        <button onclick="setPresetColor([0.0, 1.0, 0.0, 1.0])" style="background-color: green; color: white;">Green</button>
+        <button onclick="setPresetColor([0.0, 0.0, 1.0, 1.0])" style="background-color: blue; color: white;">Blue</button>
+        <button onclick="setPresetColor([1.0, 1.0, 0.0, 1.0])" style="background-color: yellow;">Yellow</button>
+        <button onclick="setPresetColor([1.0, 0.0, 1.0, 1.0])" style="background-color: magenta; color: white;">Magenta</button>
+        <button onclick="setPresetColor([0.0, 1.0, 1.0, 1.0])" style="background-color: cyan;">Cyan</button>
+      </div>
+
+      <div class="control-group">
+        <button onclick="clearCanvas()">Clear</button>
+        <button onclick="undoLastShape()">Undo</button>
+        <button onclick="drawPicture()">Draw Picture</button>
+      </div>
+
+      
+    </div>
+      </div>
+      
+      <div class="right-panel">
+        <div class="reference-label">Reference Image:</div>
+        <img src="IMG_576C54A80E75-1.jpeg" alt="Reference Image" class="reference-image">
+      </div>
+    </div>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="asg1.js"></script>
+  </body>
+</html>
