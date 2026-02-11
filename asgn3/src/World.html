@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CSE 160 - Assignment 3 World</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 16px;
+      }
+      canvas {
+        border: 1px solid #888;
+      }
+      .small {
+        font-size: 13px;
+        color: #333;
+      }
+      #hud {
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body onload="main()">
+    <h2>Assignment 3: First-Person World</h2>
+    <canvas id="webgl" width="900" height="600">
+      Please use a browser that supports canvas.
+    </canvas>
+
+    <div id="hud" class="small">
+      <div><b>Move:</b> W A S D | <b>Turn:</b> Q E | <b>Mouse look:</b> click canvas + move mouse</div>
+      <div><b>Minecraft:</b> F add block, G remove block in front</div>
+      <div><b>Goal:</b> Collect all crystals and visit your dog friend.</div>
+      <div>FPS: <span id="fps">--</span> | Blocks in front cell: <span id="frontCell">--</span></div>
+      <div id="storyText">Story: Find 3 crystals hidden in the world.</div>
+    </div>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="camera.js"></script>
+    <script src="Cube.js"></script>
+    <script src="World.js"></script>
+  </body>
+</html>
