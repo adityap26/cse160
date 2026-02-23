@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CSE 160 - Assignment 3 World</title>
+    <title>CSE 160 - Assignment 5 Lighting World</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -22,7 +22,7 @@
     </style>
   </head>
   <body onload="main()">
-    <h2>Assignment 3: First-Person World</h2>
+    <h2>Assignment 4: First-Person World with Lighting</h2>
     <canvas id="webgl" width="900" height="600">
       Please use a browser that supports canvas.
     </canvas>
@@ -30,6 +30,23 @@
     <div id="hud" class="small">
       <div><b>Move:</b> W A S D | <b>Turn:</b> Q E | <b>Mouse look:</b> click canvas + move mouse</div>
       <div><b>Minecraft:</b> F add block, G remove block in front</div>
+      <div style="margin-top: 8px;">
+        <button id="toggleLightingBtn">Lighting: ON</button>
+        <button id="toggleNormalsBtn">Normal Viz: OFF</button>
+        <button id="togglePointBtn">Point Light: ON</button>
+        <button id="toggleSpotBtn">Spot Light: ON</button>
+        <label style="margin-left: 8px;"><input id="animateLightChk" type="checkbox" checked /> Animate point light</label>
+      </div>
+      <div style="margin-top: 6px;">
+        Light X <input id="lightX" type="range" min="-15" max="15" step="0.1" value="4" />
+        Light Y <input id="lightY" type="range" min="0" max="12" step="0.1" value="4" />
+        Light Z <input id="lightZ" type="range" min="-15" max="15" step="0.1" value="0" />
+      </div>
+      <div style="margin-top: 6px;">
+        Light R <input id="lightR" type="range" min="0" max="1" step="0.01" value="1" />
+        Light G <input id="lightG" type="range" min="0" max="1" step="0.01" value="1" />
+        Light B <input id="lightB" type="range" min="0" max="1" step="0.01" value="1" />
+      </div>
       <div><b>Goal:</b> Collect all crystals and visit your dog friend.</div>
       <div>FPS: <span id="fps">--</span> | Blocks in front cell: <span id="frontCell">--</span></div>
       <div id="storyText">Story: Find 3 crystals hidden in the world.</div>
@@ -41,6 +58,8 @@
     <script src="../lib/cuon-matrix-cse160.js"></script>
     <script src="camera.js"></script>
     <script src="Cube.js"></script>
-    <script src="World.js"></script>
+    <script src="Sphere.js"></script>
+    <script src="Model.js"></script>
+    <script src="WorldL.js"></script>
   </body>
 </html>
