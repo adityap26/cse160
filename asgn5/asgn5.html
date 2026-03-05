@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSE160 Assignment 5 - Three.js World</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --panel-bg: rgba(8, 12, 20, 0.76);
+      --panel-border: rgba(132, 176, 255, 0.45);
+      --accent: #8cc2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: "Trebuchet MS", sans-serif;
+      background: #05080f;
+      color: #e8f0ff;
+    }
+
+    #infoPanel {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      max-width: 360px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    #infoPanel h1 {
+      font-size: 15px;
+      margin: 0 0 6px 0;
+      color: var(--accent);
+    }
+
+    #infoPanel p {
+      margin: 6px 0;
+    }
+
+    #toggleNight {
+      margin-top: 8px;
+      border: 1px solid #75a9e8;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      background: #143157;
+      color: #eff6ff;
+      font-weight: 600;
+    }
+
+    #toggleNight:hover {
+      background: #1d467b;
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@v0.183.2/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.183.2/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="infoPanel">
+    <h1>CSE160 Assignment 5 World</h1>
+    <p>Mouse: orbit (left drag), pan (right drag), zoom (wheel).</p>
+    <p>
+      Scene includes 20+ primary 3D shapes, textured geometry, animated objects,
+      multiple light types, a textured skybox, and a textured glTF model.
+    </p>
+    <p>
+      <strong>Wow point:</strong> click the button to switch to a dynamic night mode
+      with brighter fireflies and different lighting mood.
+    </p>
+    <button id="toggleNight" type="button">Toggle Day / Night</button>
+  </div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+
+    // Textured skybox.
+    const cubeLoader = new THREE.CubeTextureLoader();
+    scene.background = cubeLoader.load([
+      "https://threejs.org/examples/textures/cube/Bridge2/posx.jpg",
+      "https://threejs.org/examples/textures/cube/Bridge2/negx.jpg",
+      "https://threejs.org/examples/textures/cube/Bridge2/posy.jpg",
+      "https://threejs.org/examples/textures/cube/Bridge2/negy.jpg",
+      "https://threejs.org/examples/textures/cube/Bridge2/posz.jpg",
+      "https://threejs.org/examples/textures/cube/Bridge2/negz.jpg"
+    ]);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(14, 18, 20);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 3.5, 0);
+
+    const textureLoader = new THREE.TextureLoader();
+
+    // Ground texture.
+    const grassTexture = textureLoader.load("https://threejs.org/examples/textures/terrain/grasslight-big.jpg");
+    grassTexture.wrapS = THREE.RepeatWrapping;
+    grassTexture.wrapT = THREE.RepeatWrapping;
+    grassTexture.repeat.set(16, 16);
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(90, 90),
+      new THREE.MeshStandardMaterial({ map: grassTexture, roughness: 0.95, metalness: 0.02 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Required light types: ambient, directional, hemisphere, point.
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.24);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    directionalLight.position.set(12, 22, 8);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.set(2048, 2048);
+    directionalLight.shadow.camera.left = -40;
+    directionalLight.shadow.camera.right = 40;
+    directionalLight.shadow.camera.top = 40;
+    directionalLight.shadow.camera.bottom = -40;
+    scene.add(directionalLight);
+
+    const hemisphereLight = new THREE.HemisphereLight(0x7ab6ff, 0x533014, 0.6);
+    scene.add(hemisphereLight);
+
+    const pointLight = new THREE.PointLight(0xffbf80, 1.4, 80, 2);
+    pointLight.position.set(-5, 6, -3);
+    pointLight.castShadow = true;
+    scene.add(pointLight);
+
+    // Primary shape materials/geometries.
+    const crateTexture = textureLoader.load("https://threejs.org/examples/textures/crate.gif");
+    const texturedBoxMaterial = new THREE.MeshStandardMaterial({ map: crateTexture, roughness: 0.8 });
+    const stoneMaterial = new THREE.MeshStandardMaterial({ color: 0x9ca6b8, roughness: 0.85, metalness: 0.08 });
+    const copperMaterial = new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.45, metalness: 0.65 });
+    const tealMaterial = new THREE.MeshStandardMaterial({ color: 0x1ca8a8, roughness: 0.55, metalness: 0.1 });
+
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    const sphereGeo = new THREE.SphereGeometry(0.55, 24, 20);
+    const cylinderGeo = new THREE.CylinderGeometry(0.45, 0.45, 1.2, 24);
+
+    const animatedObjects = [];
+    const primaryObjects = [];
+
+    function addPrimaryMesh(geometry, material, x, y, z, scale = 1) {
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(x, y, z);
+      mesh.scale.setScalar(scale);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      scene.add(mesh);
+      primaryObjects.push(mesh);
+      return mesh;
+    }
+
+    // 24 primary shapes (boxes/spheres/cylinders) across the field.
+    for (let i = -2; i <= 3; i += 1) {
+      const box = addPrimaryMesh(boxGeo, i === 0 ? texturedBoxMaterial : stoneMaterial, i * 2.2, 0.9, -6, 1.0);
+      animatedObjects.push({ mesh: box, type: "spin", speed: 0.4 + (i + 2) * 0.05 });
+    }
+
+    for (let i = 0; i < 9; i += 1) {
+      const x = -10 + i * 2.5;
+      const sphere = addPrimaryMesh(sphereGeo, tealMaterial, x, 1.1, -0.6, 1.0);
+      animatedObjects.push({ mesh: sphere, type: "bounce", speed: 1.2 + i * 0.09, offset: i });
+    }
+
+    for (let i = 0; i < 9; i += 1) {
+      const z = -9 + i * 2.2;
+      addPrimaryMesh(cylinderGeo, copperMaterial, 8.4, 1.05, z - 1, 1.0);
+    }
+
+    // Extra animated torus marker.
+    const torus = new THREE.Mesh(
+      new THREE.TorusGeometry(1.1, 0.25, 20, 60),
+      new THREE.MeshStandardMaterial({ color: 0xe86ac2, roughness: 0.3, metalness: 0.75, emissive: 0x22001c })
+    );
+    torus.position.set(0, 4.2, 0);
+    torus.castShadow = true;
+    scene.add(torus);
+    animatedObjects.push({ mesh: torus, type: "orbit", speed: 1.0 });
+
+    // Textured glTF custom model.
+    const modelGroup = new THREE.Group();
+    modelGroup.position.set(-2.5, 1.35, 2.5);
+    scene.add(modelGroup);
+
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(
+      "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+      (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(2.1, 2.1, 2.1);
+        model.traverse((node) => {
+          if (node.isMesh) {
+            node.castShadow = true;
+            node.receiveShadow = true;
+          }
+        });
+        modelGroup.add(model);
+      },
+      undefined,
+      (error) => {
+        // Keep scene functional even if remote model fails to load.
+        console.error("Model loading error:", error);
+      }
+    );
+
+    // Floating "fireflies" for wow-point visual effect.
+    const fireflyGroup = new THREE.Group();
+    scene.add(fireflyGroup);
+    const fireflies = [];
+    for (let i = 0; i < 35; i += 1) {
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.06, 10, 10),
+        new THREE.MeshStandardMaterial({
+          color: 0x99e8ff,
+          emissive: 0x66ccff,
+          emissiveIntensity: 1.6,
+          roughness: 0.2,
+          metalness: 0.1
+        })
+      );
+      const radius = 6 + Math.random() * 8;
+      const angle = Math.random() * Math.PI * 2;
+      glow.position.set(
+        Math.cos(angle) * radius,
+        1 + Math.random() * 4,
+        Math.sin(angle) * radius
+      );
+      fireflyGroup.add(glow);
+      fireflies.push({
+        mesh: glow,
+        radius,
+        angle,
+        speed: 0.25 + Math.random() * 0.5,
+        bob: 0.3 + Math.random() * 0.9
+      });
+    }
+
+    // Day/night wow toggle.
+    let nightMode = false;
+    const dayState = {
+      ambient: 0.24,
+      hemi: 0.6,
+      dir: 1.2,
+      point: 1.4
+    };
+    const nightState = {
+      ambient: 0.09,
+      hemi: 0.18,
+      dir: 0.3,
+      point: 2.4
+    };
+
+    document.getElementById("toggleNight").addEventListener("click", () => {
+      nightMode = !nightMode;
+      const target = nightMode ? nightState : dayState;
+      ambientLight.intensity = target.ambient;
+      hemisphereLight.intensity = target.hemi;
+      directionalLight.intensity = target.dir;
+      pointLight.intensity = target.point;
+      fireflyGroup.children.forEach((mesh) => {
+        mesh.material.emissiveIntensity = nightMode ? 3.2 : 1.6;
+      });
+    });
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      const elapsed = clock.getElapsedTime();
+
+      animatedObjects.forEach((entry) => {
+        if (entry.type === "spin") {
+          entry.mesh.rotation.y += 0.01 * entry.speed;
+        } else if (entry.type === "bounce") {
+          entry.mesh.position.y = 1.1 + Math.sin(elapsed * entry.speed + entry.offset) * 0.25;
+          entry.mesh.rotation.y += 0.004;
+        } else if (entry.type === "orbit") {
+          entry.mesh.rotation.x += 0.012;
+          entry.mesh.rotation.y += 0.017;
+          entry.mesh.position.x = Math.cos(elapsed * entry.speed) * 2.3;
+          entry.mesh.position.z = Math.sin(elapsed * entry.speed) * 2.3;
+        }
+      });
+
+      fireflies.forEach((f) => {
+        f.angle += 0.0028 * f.speed;
+        f.mesh.position.x = Math.cos(f.angle) * f.radius;
+        f.mesh.position.z = Math.sin(f.angle) * f.radius;
+        f.mesh.position.y = 1.4 + Math.sin(elapsed * f.speed * 2.0 + f.radius) * f.bob;
+      });
+
+      pointLight.position.x = Math.cos(elapsed * 0.5) * 6;
+      pointLight.position.z = Math.sin(elapsed * 0.5) * 5;
+
+      modelGroup.rotation.y += 0.0035;
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Expose count for quick requirement sanity-check in console.
+    window.primaryShapeCount = primaryObjects.length;
+  </script>
+</body>
+</html>
